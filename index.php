@@ -7,13 +7,13 @@
 <?php
 echo 'Задание №1<br>';
 
-$xml = simplexml_load_file('data.xml');
+$xml   = simplexml_load_file('data.xml');
 $attrs = $xml->attributes();
 echo 'Oreder number: ', $attrs[0], '<br>', 'Date: ', $attrs[1], '<br><br>';
 
 foreach ($xml->Address as $key) {
     echo '<b>Address type: </b>', $key->attributes(), '<br>';
-    echo 'Name: ', $key->Name,'<br>';
+    echo "Name: {$key->Name} <br>";//так же удобнее
     echo 'Address: ';
     foreach ($key->children() as $key) {
         if ($key->getName() != 'Name') {
@@ -27,12 +27,21 @@ echo 'Delivery notes: ', $xml->DeliveryNotes, '<br><br>';
 
 foreach ($xml->Items->Item as $key) {
     echo '<b>Part Number: </b>', $key->attributes(), '<br>';
-    foreach ($key->children() as $key)
+    foreach ($key->children() as $key) //psr-2 забыл)
     echo $key->getname(), ': ', $key,'<br>';
 }
 
 echo '<br><br>','Задание №2<br>';
-
+//сейчас считают это устаревшим и все массивы делают через []
+//Да и двойные кавычки не к чему))
+//$str= [
+//    "students" => [
+//        ['name'=> 'Вова'],
+//        array("name" => "Петя"),
+//        array("name" => "Иван"),
+//        array("name" => "Света"),
+//    ]
+//];
 $str= array(
     "students" => array(
         array("name" => "Вова"),
@@ -44,18 +53,18 @@ $str= array(
 
 $jsonString = json_encode($str, JSON_UNESCAPED_UNICODE);
 
-$fp = fopen("output.json", "w");
+$fp   = fopen("output.json", "w");
 $test = fwrite($fp, $jsonString);
 fclose($fp);
 
-$jPath = 'output2.json';
-$jFile = file_get_contents($jPath);
+$jPath  = 'output2.json';
+$jFile  = file_get_contents($jPath);
 $jArray = json_decode($jFile, true);
 
 $a = $str['students'];
 $b = $jArray ['students'];
 
-for ($i=0; $i< count($a); $i++ ) {
+for ($i=0; $i< count($a); $i++ ) {//psr-2
     $dif = array_diff($a[$i], $b[$i]);
     if ($dif) {
         echo 'Во втром списке отсутствует ученик(и): ', $dif['name'], '<br>';
@@ -65,6 +74,7 @@ for ($i=0; $i< count($a); $i++ ) {
         echo 'Но во втором списке есть ученик(и): ', $dif['name'], '<br>';
     }
 }
+//Не совсем корректно работает, мы можем не только поменять значение ну удалить просто
 
 echo '<br><br>','Задание №3<br>';
 
@@ -81,7 +91,7 @@ $csvPath = 'test.csv';
 $csvFile = fopen($csvPath, "r");
 $csvData = fgetcsv($csvFile, 1000, ",");
 echo 'Сумма после: ',array_sum($csvData);
-
+//нужно посчитать сумму всех четных чисел)
 echo '<br><br>','Задание №4<br>';
 
 /**
@@ -91,7 +101,7 @@ echo '<br><br>','Задание №4<br>';
  */
 function wikiRequest($method, $type, $param = array())
 {
-    $params ='';
+    $params = '';
     foreach ($param as $key => $value) {
         $params = $params.$key.'='.$value.'&';
     }
@@ -117,6 +127,9 @@ $ary = array(
 );
 
 $data = wikiRequest('action=query', 'format=json', $ary);
+
+//var_dump(json_decode($data)->query->pages->{15580374}->pageid);
+//var_dump(json_decode($data)->query->pages->{15580374}->title); //Так тоже работает)))
 preg_match('@("title":".*?)\"@i', $data, $result);
 echo $result[0], '<br>';
 preg_match('@("pageid":)[\d]+@i', $data, $result);
